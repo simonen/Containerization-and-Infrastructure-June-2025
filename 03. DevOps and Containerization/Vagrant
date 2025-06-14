@@ -6,7 +6,7 @@ Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
 
   config.vm.define "web" do |web|
-    web.vm.box="almalinux-9.6"
+    web.vm.box="shekeriev/almalinux-9.6"
     web.vm.hostname = "web.do1.lab"
     web.vm.network "private_network", ip: "192.168.89.100"
     web.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
@@ -17,7 +17,6 @@ echo "192.168.89.100 web.do1.lab web" >> /etc/hosts
 echo "192.168.89.101 db.do1.lab db" >> /etc/hosts
 
 echo "* Install Software ..."
-dnf upgrade -y
 dnf install -y httpd php php-mysqlnd git
 
 echo "* Start HTTP ..."
@@ -28,8 +27,12 @@ echo "* Adding HTTP service to firewall ..."
 firewall-cmd --add-service=http --permanent
 firewall-cmd --reload
 
-echo "* Copy web site files to /var/www/html/ ..."
-cp /vagrant/* /var/www/html
+echo "* Cloning the web app ..."
+cd /home/vagrant
+git clone https://github.com/shekeriev/bgapp
+
+echo "* Copying web site files to /var/www/html/ ..."
+cp bgapp/web/* /var/www/html
 
 echo "* Allow HTTPD to make network connections ..."
 setsebool -P httpd_can_network_connect=1
@@ -37,7 +40,7 @@ EOS
   end
 
   config.vm.define "db" do |db|
-    db.vm.box="almalinux-9.6"
+    db.vm.box="shekeriev/almalinux-9.6"
     db.vm.hostname = "db.do1.lab"
     db.vm.network "private_network", ip: "192.168.89.101"
     db.vm.synced_folder "vagrant/db/", "/vagrant"
@@ -47,19 +50,22 @@ echo "192.168.89.100 web.do1.lab web" >> /etc/hosts
 echo "192.168.89.101 db.do1.lab db" >> /etc/hosts
 
 echo "* Install Software ..."
-dnf upgrade -y
 dnf install -y mariadb mariadb-server
 
 echo "* Start HTTP ..."
 systemctl enable mariadb
 systemctl start mariadb
 
-echo "* Stop firewall ..."
+echo "* Allowing mySQL through the firewall ..."
 firewall-cmd --add-service=mysql --permanent
 firewall-cmd --reload
 
-echo "* Create and load the database ..."
-mysql -u root < /vagrant/db_setup.sql
+echo "* Cloning the web app ..."
+cd /home/vagrant
+git clone https://github.com/shekeriev/bgapp
+
+echo "* Creating and loading the database ..."
+mysql -u root < /home/vagrant/webapp/db/db_setup.sql
 EOS
   end
 end
