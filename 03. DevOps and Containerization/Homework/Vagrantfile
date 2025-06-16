@@ -1,0 +1,33 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.ssh.insert_key = false
+
+  config.vm.define "web" do |web|
+    web.vm.box = "centos/9-minimal"
+    web.vm.hostname = "web.do1.lab"
+    web.vm.network "private_network", ip: "192.168.89.100"
+    web.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
+#     web.vm.provision "shell", path: "web-setup.sh"
+
+    web.vm.provider :virtualbox do |vb|
+      vb.name = 'web-bgapp'
+      vb.customize ["modifyvm", :id, "--memory", "2048"]
+    end
+  end
+
+  config.vm.define "db" do |db|
+    db.vm.box = "centos/9-minimal"
+    db.vm.hostname = "db.do1.lab"
+    db.vm.network "private_network", ip: "192.168.89.101"
+#     db.vm.provision "shell", path: "db-setup.sh"
+
+    db.vm.provider :virtualbox do |vb|
+      vb.name = 'db-bgapp'
+      vb.customize ["modifyvm", :id, "--memory", "2048"]
+    end
+  end
+
+end
