@@ -1,3 +1,5 @@
+I. Virtualization
+
 Host OS: Windows 10
 Base Vagrant OS: CentOS9 Minimal
 Virtual Box 7.1.10
@@ -6,3 +8,38 @@ Virtual Box 7.1.10
 2. Run 01-create-box on the vagrant host.
 3. Overwrite the Vagrantfile
 4. Run 'vagrant up' on the vagrant host.
+
+II. Containerization
+
+# Pull and run the container
+docker run --name homework -it --entrypoint /bin/sh shekeriev/animal-stories
+
+# In the container
+# cat entrypoint.sh
+#!/bin/bash
+
+/opt/app/playground.sh
+
+# Run the script
+/opt/app/playground.sh
+
+# Find the animal-stories.txt file
+find / -name animal-stories.txt
+
+# cat /etc/selinux/animal-stories.txt | grep -n tigers
+40:brown:tigers:are:fast:and:smell:tomatoes
+50:pink:tigers:are:bad:and:like:kiwis
+60:green:tigers:are:clever:and:dream:kiwis
+
+# Select the first column and return unique values
+# cut -d':' -f1 /etc/selinux/animal-stories.txt | sort -ur
+yellow
+white
+purple
+pink
+orange
+green
+gray
+brown
+blue
+black
