@@ -1,0 +1,8 @@
+Host OS: Windows 10
+Base Vagrant OS: CentOS9 Minimal
+Virtual Box 7.1.10
+
+1. Run 00-prep.sh on the base VM. vboxsf module must be created!
+2. Run 01-create-box on the vagrant host.
+3. Overwrite the Vagrantfile
+4. Run 'vagrant up' on the vagrant host.

@@ -1,0 +1,3 @@
+vagrant package --base centos-base --output centos9.box
+vagrant box add centos9.box --name centos9-minimal
+vagrant init
