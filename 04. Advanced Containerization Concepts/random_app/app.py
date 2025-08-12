@@ -1,4 +1,4 @@
-import random
+import random, os
 from flask import Flask, render_template
 
 
@@ -10,9 +10,11 @@ quotes = ['Koi sega e nomer 1 - Bi4eto',
           'Koito pie, toj pikae - Leibnitz', 'Az sym nai-dobriq r&b izpalnitel - Bi4eto']
 
 
-def main():
+@app.route("/")
+def index():
     quote = random.choice(quotes)
-    print(quote)
+    #print(quote)
+    return render_template("index.html", quote=quote)
 
 if __name__ == "__main__":
-    main()
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 3000)))
