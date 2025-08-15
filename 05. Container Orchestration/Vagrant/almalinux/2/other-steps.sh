@@ -6,7 +6,7 @@ echo "192.168.99.102 docker2.do1.lab docker2" >> /etc/hosts
 echo "192.168.99.103 docker3.do1.lab docker3" >> /etc/hosts
 
 echo "* Install Additional Packages ..."
-dnf install -y jq tree git nano
+dnf install -y jq tree git nano vim
 
 # We have two options:
 # 1) Either disable the firewall
