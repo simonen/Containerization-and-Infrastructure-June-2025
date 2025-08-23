@@ -1,6 +1,9 @@
 services:
   web:
     image: web-image
+    deploy:
+      mode: replicated
+      replicas: 2
     volumes:
       - ./web:/var/www/html
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
@@ -17,11 +20,20 @@ services:
     networks:
       - app-network
   db:
+    deploy:
+      replicas: 2
+      endpoint_mode: dnsrr
     image: db-image
     networks:
       - app-network
     environment:
       MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+#    secrets:
+#      - db_secret
+
+#secrets:
+#  db_secret:
+#    external: true
 
 networks:
   app-network:
