@@ -1,5 +1,6 @@
 Vagrant.configure("2") do |config|
   mngr_ip = "192.168.99.105"
+  db_password = "12345"
   config.vm.synced_folder "./swarm", "/swarm"
 
   config.vm.define "docker1" do |docker1|
@@ -15,12 +16,16 @@ Vagrant.configure("2") do |config|
     docker1.vm.provision "shell", path: "docker-setup.sh"
     docker1.vm.provision "shell", path: "other-steps.sh"
     docker1.vm.provision "shell", path: "docker-images.sh"
+
     # Inline shell
     docker1.vm.provision "shell", inline: <<-SHELL
-echo "pededasi" > /home/vagrant/pendeli
-docker swarm init --advertise-addr #{mngr_ip}
-docker swarm join-token -q worker > /swarm/worker-token.txt
-docker stack deploy -c /home/vagrant/bgapp-homework/docker-compose.yaml bgapp_home
+        echo "pededasi" > /home/vagrant/pendeli
+        docker swarm init --advertise-addr #{mngr_ip} || true
+        docker swarm join-token -q worker > /swarm/worker-token.txt
+        docker stack rm bgapp_home || true
+        echo "<db_root_pass>" | docker secret create db_root_password -
+        docker stack deploy -c /home/vagrant/bgapp-homework/docker-compose.yaml bgapp_home
+
     SHELL
 
     # VirtualBox memory
@@ -28,4 +33,21 @@ docker stack deploy -c /home/vagrant/bgapp-homework/docker-compose.yaml bgapp_ho
       vb.customize ["modifyvm", :id, "--memory", "1536"]
     end
   end
+
+    config.vm.define "docker6" do |docker6|
+        docker6.vm.box="shekeriev/almalinux-9.6"
+        docker6.vm.hostname = "docker6.do1.lab"
+        docker6.vm.network "forwarded_port", guest: 22, host: 2226
+        docker6.vm.network "forwarded_port", guest: 8080, host: 6080
+        docker6.vm.network "private_network", ip: "192.168.99.106"
+        docker6.vm.provision "shell", path: "docker-setup.sh"
+        docker6.vm.provision "shell", path: "other-steps.sh"
+        docker6.vm.provision "shell", path: "docker-images.sh", args: db_password
+        docker6.vm.provision "shell", inline: <<-SHELL
+            docker swarm join --token $(cat /swarm/worker-token.txt) #{mngr_ip}:2377 || true
+        SHELL
+        docker6.vm.provider :virtualbox do |vb|
+            vb.customize ["modifyvm", :id, "--memory", "1536"]
+        end
+    end
 end
