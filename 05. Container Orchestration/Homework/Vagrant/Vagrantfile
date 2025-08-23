@@ -1,15 +1,31 @@
 Vagrant.configure("2") do |config|
+  mngr_ip = "192.168.99.105"
+  config.vm.synced_folder "./swarm", "/swarm"
 
-    config.vm.define "docker1" do |docker1|
-        docker1.vm.box="shekeriev/almalinux-9.6"
-        docker1.vm.hostname = "docker5.do1.lab"
-        docker1.vm.network "private_network", ip: "192.168.99.105"
-        docker1.vm.provision "shell", path: "docker-setup.sh"
-        docker1.vm.provision "shell", path: "other-steps.sh"
-        docker1.vm.provision "shell", path: "docker-images.sh"
-        docker1.vm.provider :virtualbox do |vb|
-            vb.customize ["modifyvm", :id, "--memory", "1536"]
-        end
+  config.vm.define "docker1" do |docker1|
+    docker1.vm.box = "shekeriev/almalinux-9.6"
+    docker1.vm.hostname = "docker5.do1.lab"
+
+    # Corrected port forwarding
+    docker1.vm.network "private_network", ip: mngr_ip
+    docker1.vm.network "forwarded_port", guest: 22, host: 2222
+    docker1.vm.network "forwarded_port", guest: 8080, host: 5080
+
+    # Provision scripts
+    docker1.vm.provision "shell", path: "docker-setup.sh"
+    docker1.vm.provision "shell", path: "other-steps.sh"
+    docker1.vm.provision "shell", path: "docker-images.sh"
+    # Inline shell
+    docker1.vm.provision "shell", inline: <<-SHELL
+echo "pededasi" > /home/vagrant/pendeli
+docker swarm init --advertise-addr #{mngr_ip}
+docker swarm join-token -q worker > /swarm/worker-token.txt
+docker stack deploy -c /home/vagrant/bgapp-homework/docker-compose.yaml bgapp_home
+    SHELL
+
+    # VirtualBox memory
+    docker1.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "1536"]
     end
-
   end
+end
