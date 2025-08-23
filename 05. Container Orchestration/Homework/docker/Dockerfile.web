@@ -1,0 +1,5 @@
+FROM nginx:alpine
+
+WORKDIR /var/www/html
+
+RUN chown -R nginx:nginx /var/www/html
