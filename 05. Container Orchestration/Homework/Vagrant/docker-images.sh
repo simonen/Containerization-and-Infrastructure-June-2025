@@ -1,17 +1,18 @@
 #!/bin/bash
 
-if [ ! -d "/path/to/dir" ]; then
-  echo "Directory does not exist, running command..."
-  git clone https://github.com/simonen/bgapp-homework.git
-else
-  echo "Directory exists, skipping."
+if [ -d "/home/vagrant/bgapp-homework" ]; then
+  echo "Directory exist, purging..."
+  sudo rm -rf /home/vagrant/bgapp-homework
 fi
 
+echo "Cloning repository..."
+git clone https://github.com/simonen/bgapp-homework.git
+
+chown -R vagrant:vagrant /home/vagrant/bgapp-homework
 cd bgapp-homework
-echo "DB_ROOT_PASSWORD=12345" > .env
+
+sudo rm -rf .git
 
 docker build -t web-image -f Dockerfile.web .
 docker build -t db-image -f Dockerfile.db .
 docker build -t php-image -f Dockerfile.fpm .
-
-#docker secret create db_root_pass .env
