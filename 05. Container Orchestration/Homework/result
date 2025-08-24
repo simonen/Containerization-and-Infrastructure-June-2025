@@ -1,0 +1,15 @@
+[vagrant@docker5 ~]$ docker node ls
+ID                            HOSTNAME          STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+qak5u74myw8seas2pcgzc5qq9 *   docker5.do1.lab   Ready     Active         Leader           28.3.3
+x7krusdfambnml8cavlv7hsev     docker6.do1.lab   Ready     Active                          28.3.3
+d2omdg8d32a71gy3q68ngbeqk     docker7.do1.lab   Ready     Active                          28.3.3
+[vagrant@docker5 ~]$ docker ps
+CONTAINER ID   IMAGE              COMMAND                  CREATED          STATUS          PORTS      NAMES
+0fa4431fac1e   web-image:latest   "/docker-entrypoint.…"   18 minutes ago   Up 18 minutes   80/tcp     bgapp_home_web.qak5u74myw8seas2pcgzc5qq9.qf80o7la0gumyt6zrnfh0e08j
+4c202c5145a0   db-image:latest    "docker-entrypoint.s…"   18 minutes ago   Up 18 minutes   3306/tcp   bgapp_home_db.1.pw13602t5pt3mkp0w79uzfhvw
+d7dc70fd5dea   php-image:latest   "docker-php-entrypoi…"   18 minutes ago   Up 18 minutes   9000/tcp   bgapp_home_php-fpm.qak5u74myw8seas2pcgzc5qq9.z8wrbjjpjypb4jr2x7x47y47r
+[vagrant@docker5 ~]$ docker service ls
+ID             NAME                 MODE         REPLICAS   IMAGE              PORTS
+nsknqdb5o12z   bgapp_home_db        replicated   1/1        db-image:latest
+z5fb2xsdkwki   bgapp_home_php-fpm   global       3/3        php-image:latest
+69vcr74pi4ot   bgapp_home_web       global       3/3        web-image:latest   *:8080->80/tcp
