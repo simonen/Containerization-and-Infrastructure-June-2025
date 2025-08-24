@@ -5,11 +5,11 @@ dnf -y install dnf-plugins-core
 dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
 
 echo "* Install Docker ..."
-dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+dnf install -y app-ce app-ce-cli containerd.io app-buildx-plugin app-compose-plugin
 
 echo "* Enable and start Docker ..."
-systemctl enable docker
-systemctl start docker
+systemctl enable app
+systemctl start app
 
 echo "* Add vagrant user to docker group ..."
-usermod -aG docker vagrant
+usermod -aG app vagrant
