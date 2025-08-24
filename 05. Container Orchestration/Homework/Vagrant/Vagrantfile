@@ -1,6 +1,5 @@
 Vagrant.configure("2") do |config|
   mngr_ip = "192.168.99.105"
-  db_password = "12345"
   config.vm.synced_folder "./swarm", "/swarm"
 
   config.vm.define "docker1" do |docker1|
@@ -34,20 +33,38 @@ Vagrant.configure("2") do |config|
     end
   end
 
-    config.vm.define "docker6" do |docker6|
-        docker6.vm.box="shekeriev/almalinux-9.6"
-        docker6.vm.hostname = "docker6.do1.lab"
-        docker6.vm.network "forwarded_port", guest: 22, host: 2226
-        docker6.vm.network "forwarded_port", guest: 8080, host: 6080
-        docker6.vm.network "private_network", ip: "192.168.99.106"
-        docker6.vm.provision "shell", path: "docker-setup.sh"
-        docker6.vm.provision "shell", path: "other-steps.sh"
-        docker6.vm.provision "shell", path: "docker-images.sh", args: db_password
-        docker6.vm.provision "shell", inline: <<-SHELL
-            docker swarm join --token $(cat /swarm/worker-token.txt) #{mngr_ip}:2377 || true
-        SHELL
-        docker6.vm.provider :virtualbox do |vb|
-            vb.customize ["modifyvm", :id, "--memory", "1536"]
-        end
+  config.vm.define "docker6" do |docker6|
+    docker6.vm.box="shekeriev/almalinux-9.6"
+    docker6.vm.hostname = "docker6.do1.lab"
+    docker6.vm.network "forwarded_port", guest: 22, host: 2226
+    docker6.vm.network "forwarded_port", guest: 8080, host: 6080
+    docker6.vm.network "private_network", ip: "192.168.99.106"
+    docker6.vm.provision "shell", path: "docker-setup.sh"
+    docker6.vm.provision "shell", path: "other-steps.sh"
+    docker6.vm.provision "shell", path: "docker-images.sh"
+    docker6.vm.provision "shell", inline: <<-SHELL
+        docker swarm join --token $(cat /swarm/worker-token.txt) #{mngr_ip}:2377 || true
+    SHELL
+    docker6.vm.provider :virtualbox do |vb|
+        vb.customize ["modifyvm", :id, "--memory", "1536"]
     end
+  end
+
+  config.vm.define "docker7" do |docker7|
+    docker7.vm.box="shekeriev/almalinux-9.6"
+    docker7.vm.hostname = "docker7.do1.lab"
+    docker7.vm.network "forwarded_port", guest: 22, host: 2227
+    docker7.vm.network "forwarded_port", guest: 8080, host: 7080
+    docker7.vm.network "private_network", ip: "192.168.99.107"
+    docker7.vm.provision "shell", path: "docker-setup.sh"
+    docker7.vm.provision "shell", path: "other-steps.sh"
+    docker7.vm.provision "shell", path: "docker-images.sh"
+    docker7.vm.provision "shell", inline: <<-SHELL
+        docker swarm join --token $(cat /swarm/worker-token.txt) #{mngr_ip}:2377 || true
+    SHELL
+    docker7.vm.provider :virtualbox do |vb|
+        vb.customize ["modifyvm", :id, "--memory", "1536"]
+    end
+  end
+
 end
